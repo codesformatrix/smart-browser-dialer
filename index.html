@@ -96,67 +96,67 @@
 
     const BACKEND = "https://dialer-backend-vmyc.onrender.com";
 
-    // When deployed on Render: replace above with https://yourbackend.onrender.com
-
     async function startCall() {
-      const number = document.getElementById("phone").value;
+        const number = document.getElementById("phone").value;
 
-      if (!number) {
+        if (!number) {
         alert("Please enter a phone number");
         return;
-      }
+        }
 
-      document.getElementById("status").innerText = "Dialing…";
+        document.getElementById("status").innerText = "Dialing…";
 
-      try {
-        const res = await fetch(`${backend}/call`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ number })
+        try {
+        const res = await fetch(`${BACKEND}/call`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ number })
         });
 
         const data = await res.json();
 
         if (data.success) {
-          currentCallSid = data.callSid;
-          document.getElementById("status").innerText = "Calling…";
+            currentCallSid = data.callSid;
+            document.getElementById("status").innerText = "Calling…";
         } else {
-          document.getElementById("status").innerText = "Call failed";
+            document.getElementById("status").innerText = "Call failed";
         }
-      } catch (err) {
+        } catch (err) {
         console.error(err);
         document.getElementById("status").innerText = "Error connecting";
-      }
+        }
     }
 
     async function hangupCall() {
-      if (!currentCallSid) {
+        if (!currentCallSid) {
         alert("No active call");
         return;
-      }
+        }
 
-      document.getElementById("status").innerText = "Ending call…";
+        document.getElementById("status").innerText = "Ending call…";
 
-      try {
-        await fetch(`${backend}/hangup`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ callSid: currentCallSid })
+        try {
+        await fetch(`${BACKEND}/hangup`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ callSid: currentCallSid })
         });
 
         currentCallSid = null;
         document.getElementById("status").innerText = "Call ended";
-      } catch (err) {
+        } catch (err) {
         console.error(err);
         document.getElementById("status").innerText = "Error ending call";
-      }
+        }
     }
 
     function toggleSpeaker() {
-      speakerEnabled = !speakerEnabled;
-      document.getElementById("status").innerText = speakerEnabled ? "Speaker ON" : "Speaker OFF";
+        speakerEnabled = !speakerEnabled;
+        document.getElementById("status").innerText = 
+        speakerEnabled ? "Speaker ON" : "Speaker OFF";
     }
   </script>
+
 
 </body>
 </html>
