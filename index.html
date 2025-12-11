@@ -94,7 +94,20 @@
     let currentCallSid = null;
     let speakerEnabled = false;
 
-    const backend = "https://dialer-backend-vmyc.onrender.com/call"; 
+    const BACKEND = "https://dialer-backend-vmyc.onrender.com";
+    async function startCall() {
+    const number = document.getElementById("phone").value;
+
+    const res = await fetch(`${BACKEND}/call`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ number })
+    });
+
+    const data = await res.json();
+    console.log(data);
+}
+
     // When deployed on Render: replace above with https://yourbackend.onrender.com
 
     async function startCall() {
