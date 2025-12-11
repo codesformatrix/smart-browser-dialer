@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Jarvis Dialer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0d1117;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .dialer {
+      background: #161b22;
+      padding: 30px;
+      border-radius: 20px;
+      width: 320px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    }
+
+    input {
+      width: 90%;
+      padding: 15px;
+      font-size: 22px;
+      border-radius: 10px;
+      text-align: center;
+      border: none;
+      margin-bottom: 20px;
+      outline: none;
+    }
+
+    .btn {
+      width: 90%;
+      padding: 15px;
+      font-size: 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: 0.2s;
+    }
+
+    .call {
+      background: #2ecc71;
+    }
+
+    .call:hover {
+      background: #27ae60;
+    }
+
+    .hangup {
+      background: #e74c3c;
+    }
+
+    .hangup:hover {
+      background: #c0392b;
+    }
+
+    .speaker {
+      background: #3498db;
+    }
+
+    .speaker:hover {
+      background: #2980b9;
+    }
+
+    #status {
+      margin-top: 15px;
+      font-size: 18px;
+      opacity: 0.8;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="dialer">
+    <h2>📞 Jarvis Dialer</h2>
+    
+    <input id="phone" placeholder="+1XXXXXXXXXX" />
+
+    <button class="btn call" onclick="startCall()">Call</button>
+    <button class="btn hangup" onclick="hangupCall()">Hang Up</button>
+    <button class="btn speaker" onclick="toggleSpeaker()">Speaker</button>
+
+    <div id="status">Ready</div>
+  </div>
+
+  <script>
+    let currentCallSid = null;
+    let speakerEnabled = false;
+
+    const backend = "http://localhost:5000"; 
+    // When deployed on Render: replace above with https://yourbackend.onrender.com
+
+    async function startCall() {
+      const number = document.getElementById("phone").value;
+
+      if (!number) {
+        alert("Please enter a phone number");
+        return;
+      }
+
+      document.getElementById("status").innerText = "Dialing…";
+
+      try {
+        const res = await fetch(`${backend}/call`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ number })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          currentCallSid = data.callSid;
+          document.getElementById("status").innerText = "Calling…";
+        } else {
+          document.getElementById("status").innerText = "Call failed";
+        }
+      } catch (err) {
+        console.error(err);
+        document.getElementById("status").innerText = "Error connecting";
+      }
+    }
+
+    async function hangupCall() {
+      if (!currentCallSid) {
+        alert("No active call");
+        return;
+      }
+
+      document.getElementById("status").innerText = "Ending call…";
+
+      try {
+        await fetch(`${backend}/hangup`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ callSid: currentCallSid })
+        });
+
+        currentCallSid = null;
+        document.getElementById("status").innerText = "Call ended";
+      } catch (err) {
+        console.error(err);
+        document.getElementById("status").innerText = "Error ending call";
+      }
+    }
+
+    function toggleSpeaker() {
+      speakerEnabled = !speakerEnabled;
+      document.getElementById("status").innerText = speakerEnabled ? "Speaker ON" : "Speaker OFF";
+    }
+  </script>
+
+</body>
+</html>
